@@ -7,40 +7,50 @@ export default class AddFolder extends React.Component{
 
     constructor(props, context){
         super(props);
+        this.inputName = React.createRef();
         this.state = {
-            name: ''
+            name: {
+                value: ''
+            }
         }
     }
 
 
-    onChange(){
-        console.log(this.context);
+    onChange(name){
         this.setState({
-            name: document.getElementById('folder-name').value
+            name: {
+                value: name
+            }
         });
-        this.context.folderError(this.state.name);
+        this.context.folderError(this.state.name.value);
     }
 
     onSubmit = e => {
         e.preventDefault();
-        let folder = {
-            name: this.state.name
-        };
-        
+        const name = this.inputName.current.value;
+       
+        const newFolder = {
+            foldername: name
+        }
+       
         if(!this.context.folderExists){
+            
             // only create a new folder if the name isnt used
             fetch(`${config.API_ENDPOINT}/folders`, {
                 method: 'POST',
                 headers: {
                     'content-type': 'application/json'
                 },
-                body: JSON.stringify(folder)
+                body: JSON.stringify({
+                    foldername: name,
+                })
             })
                 .then(response => response.json())
-                .then(response => this.context.addFolder(response));
-        }else{
-            console.log('folder exists try a new name');
-        }     
+                .then(res => this.context.addFolder(res))
+                .catch(err=>console.log(err, 'error'));
+
+            this.inputName.current.value = '';
+        }    
     }
 
 
@@ -52,7 +62,7 @@ export default class AddFolder extends React.Component{
                 </header>
                 <form onSubmit={(e) => this.onSubmit(e)}>
                     <label htmlFor="folder-name">
-                        <input type="text" placeholder="folder" id="folder-name" required onChange={() => this.onChange()} />
+                        <input type="text" placeholder="Folder name" id="folder-name" ref={this.inputName} required onChange={e => this.onChange(e.target.value)} />
                     </label>
 
                     <input type="submit"/>

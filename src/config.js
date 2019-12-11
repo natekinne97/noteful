@@ -1,3 +1,5 @@
 export default {
-  API_ENDPOINT: 'http://localhost:9090'
-}
+  // https://stormy-lowlands-28176.herokuapp.com
+  // http://localhost:8000
+  API_ENDPOINT: "https://stormy-lowlands-28176.herokuapp.com"
+};

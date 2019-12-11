@@ -4,10 +4,6 @@ import ApiContext from '../ApiContext';
 export default class Error extends React.Component{
     static contextType = ApiContext;
 
-   
-
-
-
     render(){
         const folder = this.context.folderExists;
         const note = this.context.noteExists;

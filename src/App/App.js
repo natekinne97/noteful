@@ -27,6 +27,7 @@ class App extends Component {
             fetch(`${config.API_ENDPOINT}/folders`)
         ])
             .then(([notesRes, foldersRes]) => {
+               
                 if (!notesRes.ok)
                     return notesRes.json().then(e => Promise.reject(e));
                 if (!foldersRes.ok)
@@ -35,6 +36,7 @@ class App extends Component {
                 return Promise.all([notesRes.json(), foldersRes.json()]);
             })
             .then(([notes, folders]) => {
+              
                 this.setState({notes, folders});
             })
             .catch(error => {
@@ -43,8 +45,9 @@ class App extends Component {
     }
 
     handleDeleteNote = noteId => {
+       
         this.setState({
-            notes: this.state.notes.filter(note => note.id !== noteId)
+            notes: this.state.notes.filter(note => note.id !== Number(noteId))
         });
     };
 
@@ -55,11 +58,12 @@ class App extends Component {
         });
         this.state.folders.map(folderFound => {
             if (folder === folderFound.name) {
-                console.log("name exists");
+              
                 this.setState({
                     folderExists: true
                 });
             }
+            return 0;
         });
     }
 
@@ -69,11 +73,18 @@ class App extends Component {
         });
     }
 
-    addNote = note =>{
-        console.log('adding note');
+    setNotes = notes =>{
         this.setState({
-            notes: this.state.notes.concat(note)
-        });
+            notes: notes
+        })
+    }
+
+    addNote = note =>{
+       
+        this.setNotes([
+            ...this.state.notes,
+            note
+        ])
     }
 
     // make sure the note name isnt reused
@@ -83,12 +94,14 @@ class App extends Component {
         });
         this.state.notes.map(notesFound =>{
             if(notesFound.name === noteName){
-                console.log('note name exists');
+              
                 this.setState({
                     noteExists: true
                 });
             }
+            return 0;
         });
+        return 0;
     }
 
     renderNavRoutes() {
@@ -131,6 +144,7 @@ class App extends Component {
     }
 
     render() {
+      
         const value = {
             notes: this.state.notes,
             folders: this.state.folders,

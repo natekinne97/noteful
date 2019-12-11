@@ -5,64 +5,95 @@ import './addNote.css';
 
 export default class AddNote extends React.Component{
     static contextType = ApiContext;
-    state={
-        name: '',
-        modified: '',
-        folderId: '',
-        content: ''
+    constructor(props){
+        super(props);
+        this.noteName = React.createRef();
+        this.content = React.createRef();
+        this.state = {
+            name: {
+                value: ''
+            },
+            modified: '',
+            folderId: {
+                value: ''
+            },
+            content: {
+                value: ''
+            },
+            history: {
+                push: () => { },
+            },
+        }
     }
 
 
     onChange(){
-        let name = document.getElementById('name').value;
-        let content = document.getElementById('content').value;
         let modified = new Date();
-        let folderId = document.getElementById('folder-list').value;
         this.setState({
-            name: name,
+            name: {
+                value: this.noteName.current.value
+            },
             modified: modified,
-            folderId: folderId,
-            content: content,
+            folderId: {
+                value: document.getElementById('folder-list').value
+            },
+            content: {
+                value: this.content.current.value
+            },
         });
-        this.context.noteError(this.state.name);
+        // check if file exists
+        this.context.noteError(this.state.name.value);
     }
 
-    onSubmit = e =>{
-        e.preventDefault();
-       
-        let noteExists = this.context.noteExits;
-        console.log(this.state);
-        if(!noteExists){
-            console.log('posting');
-            // only create a new folder if the name isnt used
-            fetch(`${config.API_ENDPOINT}/notes`, {
+    redirectOnSubmit = async id =>{
+        const { history } = this.props
+        history.push(`/note/${id}`);
+    }
+
+    onSubmit = async e =>{
+        // if it can be created then show in file when 
+        // created
+        if (!this.context.noteExists) e.preventDefault();
+        const note = {
+            name: this.noteName.current.value,
+            folder: this.state.folderId.value,
+            text: this.content.current.value
+        }
+        // if the note name doesnt exist
+        if (!this.context.noteExists){
+          
+            const settings = {
                 method: 'POST',
                 headers: {
                     'content-type': 'application/json'
                 },
-                body: JSON.stringify(this.state)
-            })
-                .then(response => response.json())
-                .then(response => this.context.addNote(response));
-        }
+                body: JSON.stringify(note)
+            }
+            // only create a new folder if the name isnt used
+            const fetchResponse = await fetch(`${config.API_ENDPOINT}/notes`, settings);
+            const response = await fetchResponse.json();
+           
+            this.context.addNote(response);   
+            this.redirectOnSubmit(response.id);
+        }   
        
     }
 
     render(){
-             
+        const action = `/folder/${this.state.folderId.value}`;
        return(
 
            <section className="add-note">
                <header>
                    <h1>Add a Note</h1>
                </header>
-            <form onSubmit={(e) => this.onSubmit(e)}>
+            <form action={action} onSubmit={(e) => this.onSubmit(e)}>
                 
                 <label htmlFor="folder-list">Select a folder:</label>
                <select id="folder-list" required>
                        {this.context.folders.map(folder => {
                            return (
-                            <option value={folder.id}>{folder.name}</option>
+                            <option key={folder.id **4} value={folder.id}>{folder.foldername}</option>
                            );
                        })}
                </select>
@@ -71,11 +102,11 @@ export default class AddNote extends React.Component{
 
                 <label htmlFor="name">
                     Note name: 
-                    <input id="name" type="text" placeholder="note name" required onChange={() => this.onChange()}/>
+                    <input id="name" type="text" placeholder="note name" ref={this.noteName} required onChange={() => this.onChange()}/>
                 </label>
                 <label htmlFor="content">
                     Content: 
-                       <textarea id="content" onChange={() => this.onChange()} required></textarea>
+                       <textarea id="content" ref={this.content} onChange={() => this.onChange()} required></textarea>
                 </label>
 
                 <input type="submit"/>
