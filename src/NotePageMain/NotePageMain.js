@@ -8,11 +8,17 @@ export default class NotePageMain extends React.Component {
   static defaultProps = {
     match: {
       params: {}
-    }
+    },
+    history: {
+      push: () => { },
+    },
   }
   static contextType = ApiContext
 
-  
+  redirectToFolder = folderId =>{
+    const history = this.props.history;
+    history.push(`/folder/${folderId}`)
+  }  
 
   renderPara(note){
     if (note.content.split(/\n \r|\n/) > 0){
@@ -32,13 +38,15 @@ export default class NotePageMain extends React.Component {
     const { notes=[] } = this.context
     const { noteId } = this.props.match.params
     const note = findNote(notes, noteId) || { content: '' }
-   
+    console.log(note, 'note');
     return (
       <section className='NotePageMain'>
         <Note
           id={note.id}
           name={note.name}
           modified={note.modified}
+          folderId={note.folderId}
+          redirectOnDelete={this.redirectToFolder}
           onDeleteNote={this.context.handleDeleteNote}
         />
         <div className='NotePageMain__content'>

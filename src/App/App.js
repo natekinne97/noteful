@@ -44,11 +44,12 @@ class App extends Component {
             });
     }
 
-    handleDeleteNote = noteId => {
+    handleDeleteNote = (noteId) => {
        
         this.setState({
             notes: this.state.notes.filter(note => note.id !== Number(noteId))
         });
+       
     };
 
     // check folder name and make sure it isnt a duplicate

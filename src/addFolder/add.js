@@ -5,6 +5,12 @@ import config from '../config';
 export default class AddFolder extends React.Component{
     static contextType = ApiContext;
 
+    static defaultProps = {
+        history: {
+            push: () => { },
+        },
+    }
+
     constructor(props, context){
         super(props);
         this.inputName = React.createRef();
@@ -25,13 +31,15 @@ export default class AddFolder extends React.Component{
         this.context.folderError(this.state.name.value);
     }
 
+    redirectToFolder = id =>{
+        const { history } = this.props
+        history.push(`/folder/${id}`);
+    }
+
     onSubmit = e => {
         e.preventDefault();
         const name = this.inputName.current.value;
        
-        const newFolder = {
-            foldername: name
-        }
        
         if(!this.context.folderExists){
             
@@ -46,7 +54,11 @@ export default class AddFolder extends React.Component{
                 })
             })
                 .then(response => response.json())
-                .then(res => this.context.addFolder(res))
+                .then(res => {
+                    console.log(res);
+                    this.context.addFolder(res)
+                    this.redirectToFolder(res.id);
+                })
                 .catch(err=>console.log(err, 'error'));
 
             this.inputName.current.value = '';
